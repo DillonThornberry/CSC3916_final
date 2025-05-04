@@ -1,0 +1,143 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Task from './Task';
+import { useNavigate } from 'react-router-dom';
+
+const API_URL = 'http://localhost:5000/api';
+
+function Tasks() {
+  const [tasks, setTasks] = useState([]);
+  const [message, setMessage] = useState('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState('Medium');
+  const [dueDate, setDueDate] = useState('');
+
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`${API_URL}/tasks`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log(res.data)
+        setTasks(res.data);
+      } catch (err) {
+        setMessage('Failed to fetch tasks');
+      }
+    };
+
+    fetchTasks();
+
+    
+  }, []);
+
+  const handleAddTask = async (e) => {
+    e.preventDefault();
+    if (!title.trim()) {
+      setMessage('Title is required');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`${API_URL}/tasks`, {
+        title,
+        description,
+        priority,
+        dueDate
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setTasks(prev => [...prev, res.data.task]);
+      setTitle('');
+      setDescription('');
+      setPriority('Medium');
+      setDueDate('');
+      setMessage('Task added successfully');
+    } catch (err) {
+      setMessage('Failed to add task');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem('token');
+    try {
+      await axios.delete(`${API_URL}/tasks/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTasks(prev => prev.filter(task => task._id !== id));
+    } catch (err) {
+      console.error('Delete failed', err);
+      setMessage('Failed to delete task');
+    }
+  };
+
+  return (
+    <div style={{ padding: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <button onClick={handleSignOut}>Sign Out</button>
+      </div>
+      <h2>Tasks</h2>
+      
+      <ul>
+        {tasks.map(task => (
+            <Task key={task._id} task={task} onDelete={handleDelete}/>
+        ))}
+      </ul>
+
+      <h3>Add New Task</h3>
+
+
+      {/* Add Task Form */}
+      <form onSubmit={handleAddTask} style={{ marginBottom: '2rem' }}>
+        <input
+          placeholder="Title *"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          required
+        /><br />
+
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+          rows={3}
+        /><br />
+
+        <label>
+          Priority:
+          <select value={priority} onChange={e => setPriority(e.target.value)}>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+        </label><br />
+
+        <label>
+          Due Date:
+          <input
+            type="date"
+            value={dueDate}
+            onChange={e => setDueDate(e.target.value)}
+          />
+        </label><br />
+
+        <button type="submit">Add Task</button>
+      </form>
+      {message && <p>{message}</p>}
+    </div>
+  );
+}
+
+export default Tasks;
