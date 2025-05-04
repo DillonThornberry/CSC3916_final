@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const User = require('./user'); // Assuming you have a User model defined in user.js
 
 const TaskSchema = new mongoose.Schema({
     userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
@@ -12,13 +13,31 @@ const TaskSchema = new mongoose.Schema({
 const Task = mongoose.model('Task', TaskSchema, 'Tasks');
 
 const getTasks = async (req, res) => {
-    try {
-        const tasks = await Task.find({ userId: req.user.id });
+
+    const role = req.query.role
+    console.log(role)
+    //console.log(req)
+
+    if (role === 'individual'){
+        try {
+            const tasks = await Task.find({ userId: req.user.id });
+            console.log(tasks)
+            res.json(tasks);
+        } catch (err) {
+            res.status(500).json({ message: 'Error fetching tasks' });
+        }
+    }
+    else if (role === 'employer'){
+        // Combine own ID and employee IDs
+        const user = await User.findById(req.user.id).lean();
+        const idsToQuery = [req.user.id, ...(user.employees || [])];
+        console.log(idsToQuery)
+
+        const tasks = await Task.find({ userId: { $in: idsToQuery } });
+        //const tasks = await Task.find({ userId: { $in: req.user.employees } });
         console.log(tasks)
         res.json(tasks);
-    } catch (err) {
-        res.status(500).json({ message: 'Error fetching tasks' });
-    }
+    } 
 }
 
 const createTask = async (req, res) => {

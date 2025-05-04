@@ -6,40 +6,47 @@ import { useNavigate } from 'react-router-dom';
 const API_URL = (process.env.API_URL || 'http://localhost:5000') + '/api';
 
 function Tasks() {
-  const [tasks, setTasks] = useState([]);
-  const [message, setMessage] = useState('');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState('Medium');
-  const [dueDate, setDueDate] = useState('');
+    const [tasks, setTasks] = useState([]);
+    const [message, setMessage] = useState('');
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [priority, setPriority] = useState('Medium');
+    const [dueDate, setDueDate] = useState('');
 
-  const navigate = useNavigate();
+    const employees = JSON.parse(localStorage.getItem('employees')) || [];
+    const role = localStorage.getItem('role') || 'individual';
 
-  const handleSignOut = () => {
-    localStorage.removeItem('token');
-    navigate('/');
-  };
+    // const { state } = useLocation();
+    // const employees = state?.employees || [];
+    // const role = state?.role || 'individual';
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`${API_URL}/tasks`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log(res.data)
-        setTasks(res.data);
-      } catch (err) {
-        setMessage('Failed to fetch tasks');
-      }
+    const navigate = useNavigate();
+
+    const handleSignOut = () => {
+        localStorage.removeItem('token');
+        navigate('/');
     };
 
-    fetchTasks();
+    useEffect(() => {
+        const fetchTasks = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_URL}/tasks?role=${role}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+            });
+            console.log(res.data)
+            setTasks(res.data);
+        } catch (err) {
+            setMessage('Failed to fetch tasks');
+        }
+        };
 
-    
-  }, []);
+        fetchTasks();
+
+        
+    }, []);
 
   const handleAddTask = async (e) => {
     e.preventDefault();

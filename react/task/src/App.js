@@ -3,6 +3,7 @@ import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Register from './Register';
 import Tasks from './Tasks';
+import { set } from 'mongoose';
 
 const API_URL = (process.env.API_URL || 'http://localhost:5000') + '/api'
 
@@ -10,6 +11,8 @@ function Home() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [role, setRole] = useState('individual');
+  const [employees, setEmployees] = useState(['']);
 
   const navigate = useNavigate();
 
@@ -19,10 +22,18 @@ function Home() {
       console.log(API_URL)
       const res = await axios.post(`${API_URL}/${endpoint}`, { email, password });
       setMessage(res.data.message);
+      console.log(res.data)
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
-        navigate('/tasks');
+        if (res.data.employees) {
+          setEmployees(res.data.employees);
+          setRole(res.data.role);
+          localStorage.setItem('role', res.data.role);
+          localStorage.setItem('employees', JSON.stringify(employees));
+        }
+        navigate('/tasks', { state: { role, employees } });
       }
+      
     } catch (err) {
       setMessage(err.response?.data?.message || 'Error');
     }
