@@ -1,14 +1,17 @@
 import React from 'react';
 
-function Task({ task, onDelete }) {
-  const { _id, title, description, priority, dueDate } = task;
+function Task({ task, onDelete, onComplete }) {
+  const { _id, title, description, priority, dueDate, isCompleted } = task;
 
   return (
-    <li style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '0.5rem', listStyleType: "none" }}>
+    <li style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '0.5rem', listStyleType: "none", opacity: isCompleted ? 0.5 : 1 }}>
       <h3>{title}</h3>
       {description && <p>{description}</p>}
       <p><strong>Priority:</strong> {priority}</p>
       {dueDate && <p><strong>Due:</strong> {new Date(dueDate).toLocaleDateString()}</p>}
+      {(
+        <button onClick={() => onComplete(_id, isCompleted)}>Mark as {isCompleted ? "Incompleted" : "Completed"}</button>
+    )}
       <button onClick={() => onDelete(_id)}>Delete</button>
     </li>
   );

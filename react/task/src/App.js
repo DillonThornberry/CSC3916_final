@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import Register from './Register';
 import Tasks from './Tasks';
 
-const API_URL = 'http://localhost:5000/api'
+const API_URL = (process.env.API_URL || 'http://localhost:5000') + '/api'
 
 function Home() {
   const [email, setEmail] = useState('');

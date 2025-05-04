@@ -3,7 +3,7 @@ import axios from 'axios';
 import Task from './Task';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = (process.env.API_URL || 'http://localhost:5000') + '/api';
 
 function Tasks() {
   const [tasks, setTasks] = useState([]);
@@ -83,6 +83,24 @@ function Tasks() {
     }
   };
 
+  const handleComplete = async (id, complete) => {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await axios.put(`${API_URL}/tasks/${id}`, { isCompleted: !complete }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      console.log(res.data)
+      setTasks(prev =>
+        prev.map(task => task._id === id ? res.data.task : task)
+      );
+    } catch (err) {
+      console.error('Mark complete failed', err);
+      setMessage('Failed to mark task as completed');
+    }
+  };
+
+  
+
   return (
     <div style={{ padding: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -92,8 +110,18 @@ function Tasks() {
       
       <ul>
         {tasks.map(task => (
-            <Task key={task._id} task={task} onDelete={handleDelete}/>
-        ))}
+            <Task key={task._id} task={task} onDelete={handleDelete} onComplete={handleComplete}/>
+        )).sort((a, b) => {
+            if (a.props.task.isCompleted && !b.props.task.isCompleted) return 1;
+            if (!a.props.task.isCompleted && b.props.task.isCompleted) return -1;
+            // if (a.props.task.priority !== b.props.task.priority) {
+            //     const priorities = ['Low', 'Medium', 'High'];
+            //     return priorities.indexOf(a.props.task.priority) - priorities.indexOf(b.props.task.priority);
+            // }
+            const dateA = new Date(a.props.task.dueDate || 0).getTime();
+            const dateB = new Date(b.props.task.dueDate || 0).getTime();
+            return dateA - dateB;
+        })}
       </ul>
 
       <h3>Add New Task</h3>
