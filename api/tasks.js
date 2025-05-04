@@ -22,21 +22,53 @@ const getTasks = async (req, res) => {
         try {
             const tasks = await Task.find({ userId: req.user.id });
             console.log(tasks)
-            res.json(tasks);
+            res.json({tasks});
         } catch (err) {
             res.status(500).json({ message: 'Error fetching tasks' });
         }
     }
     else if (role === 'employer'){
-        // Combine own ID and employee IDs
-        const user = await User.findById(req.user.id).lean();
-        const idsToQuery = [req.user.id, ...(user.employees || [])];
-        console.log(idsToQuery)
+        // // Combine own ID and employee IDs
+        // const user = await User.findById(req.user.id).lean();
+        // const idsToQuery = [req.user.id, ...(user.employees || [])];
+        // console.log(idsToQuery)
 
-        const tasks = await Task.find({ userId: { $in: idsToQuery } });
-        //const tasks = await Task.find({ userId: { $in: req.user.employees } });
-        console.log(tasks)
-        res.json(tasks);
+        // const tasks = await Task.find({ userId: { $in: idsToQuery } });
+        // //const tasks = await Task.find({ userId: { $in: req.user.employees } });
+        // console.log(tasks)
+        // res.json(tasks);
+
+        try {
+            const user = await User.findById(req.user.id).lean(); // Fetch the authenticated user
+            if (!user) return res.status(404).json({ message: 'User not found' });
+        
+            const employeeIds = user.employees || [];
+        
+            // Fetch employees' user data (with email)
+            const employees = await User.find({ _id: { $in: employeeIds } }).lean();
+        
+            // Build a lookup map from userId to email
+            const emailMap = {};
+            employees.forEach(emp => {
+              emailMap[emp._id.toString()] = emp.email;
+            });
+        
+            // Fetch tasks where userId is either the authenticated user or one of their employees
+            const tasks = await Task.find({ userId: { $in: [user._id, ...employeeIds] } }).lean();
+        
+            // Append email to each task based on the userId
+            const tasksWithEmail = tasks.map(task => ({
+              ...task,
+              employeeEmail: emailMap[task.userId.toString()] || 'Unknown'
+            }));
+
+            console.log(tasksWithEmail)
+        
+            res.json({tasks: tasksWithEmail, employees });
+          } catch (err) {
+            console.error(err);
+            res.status(500).json({ message: 'Error retrieving tasks' });
+          }
     } 
 }
 

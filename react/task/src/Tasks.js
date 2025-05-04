@@ -12,8 +12,10 @@ function Tasks() {
     const [description, setDescription] = useState('');
     const [priority, setPriority] = useState('Medium');
     const [dueDate, setDueDate] = useState('');
+    const [employeeEmail, setEmployeeEmail] = useState('');
+    const [employees, setEmployees] = useState([]);
 
-    const employees = JSON.parse(localStorage.getItem('employees')) || [];
+    //const employees = JSON.parse(localStorage.getItem('employees')) || [];
     const role = localStorage.getItem('role') || 'individual';
 
     // const { state } = useLocation();
@@ -37,7 +39,8 @@ function Tasks() {
             }
             });
             console.log(res.data)
-            setTasks(res.data);
+            setTasks(res.data.tasks);
+            setEmployees(res.data.employees);
         } catch (err) {
             setMessage('Failed to fetch tasks');
         }
@@ -61,7 +64,8 @@ function Tasks() {
         title,
         description,
         priority,
-        dueDate
+        dueDate,
+        employeeEmail,
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -72,6 +76,7 @@ function Tasks() {
       setPriority('Medium');
       setDueDate('');
       setMessage('Task added successfully');
+      setEmployeeEmail('');
     } catch (err) {
       setMessage('Failed to add task');
     }
@@ -167,6 +172,18 @@ function Tasks() {
             onChange={e => setDueDate(e.target.value)}
           />
         </label><br />
+
+        {role === 'employer' && (
+          <label>
+            Assign to Employee:
+            <select value={employeeEmail} onChange={e => setEmployeeEmail(e.target.value)}>
+              <option value="">Select Employee</option>
+              {employees.map(emp => (
+                <option key={emp._id} value={emp.email}>{emp.email}</option>
+              ))}
+            </select>
+          </label>
+        )}
 
         <button type="submit">Add Task</button>
       </form>

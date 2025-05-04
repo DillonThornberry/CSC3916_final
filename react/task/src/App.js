@@ -41,6 +41,7 @@ function Home() {
 
   return (
     <div style={{ padding: '2rem' }}>
+      <h1>Task Management App</h1>
       <h2>Sign In or Register</h2>
       <form>
         <input
