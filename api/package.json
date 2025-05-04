@@ -1,41 +1,20 @@
 {
-  "name": "csc3916_hw3",
+  "name": "api",
   "version": "1.0.0",
-  "description": "Web API 3916 Homework 3",
   "main": "server.js",
   "scripts": {
-    "test": "mocha --timeout 10000 --exit"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/shawnmccarthy/CSC3916_HW3.git"
-  },
-  "keywords": [
-    "Movie"
-  ],
-  "author": "Shawn McCarthy",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/shawnmccarthy/CSC3916_HW3/issues"
-  },
-  "homepage": "https://github.com/shawnmccarthy/CSC3916_HW3#readme",
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
-    "bcrypt-nodejs": "0.0.3",
-    "body-parser": "^1.19.0",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
-    "crypto": "^1.0.1",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "http": "0.0.1-security",
-    "jsonwebtoken": "^9.0.0",
-    "mongoose": "^5.11.18",
-    "passport": "^0.6.0",
-    "passport-http": "^0.3.0",
-    "passport-jwt": "^4.0.0"
-  },
-  "devDependencies": {
-    "chai": "^4.3.0",
-    "chai-http": "^4.3.0",
-    "mocha": "^10.2.0"
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.14.1"
   }
 }
