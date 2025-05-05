@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 //import './Register.css';
 
-const API_URL = 'http://localhost:5000/api'; // Adjust the URL as needed
+const API_URL = (process.env.API_URL || 'http://localhost:5000') + '/api'; // Adjust the URL as needed
 
 const Register = () => {
     const [email, setEmail] = useState('');
