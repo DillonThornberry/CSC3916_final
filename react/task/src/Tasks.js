@@ -13,6 +13,7 @@ function Tasks() {
     const [priority, setPriority] = useState('Medium');
     const [dueDate, setDueDate] = useState('');
     const [employeeEmail, setEmployeeEmail] = useState('');
+    const [employeeId, setEmployeeId] = useState('');
     const [employees, setEmployees] = useState([]);
 
     //const employees = JSON.parse(localStorage.getItem('employees')) || [];

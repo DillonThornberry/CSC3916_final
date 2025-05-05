@@ -74,12 +74,21 @@ const getTasks = async (req, res) => {
 
 const createTask = async (req, res) => {
     console.log(req.body)
-    const { title, description, priority, dueDate } = req.body;
+    const { title, description, priority, dueDate, employeeEmail } = req.body;
+    var employeeId = null;
+    if (employeeEmail) {
+        console.log('employeeEmail', employeeEmail)
+        const employee = await User.findOne({ email: employeeEmail });
+        if (employee) {
+            employeeId = employee._id;
+        }
+        console.log('employee', employee)
+    }
     if (!title) return res.status(400).json({ message: 'Title required' });
     console.log(req.user)
 
     try {
-        const task = new Task({ userId: req.user.id, title, description, priority, dueDate });
+        const task = new Task({ userId: employeeId ? employeeId : req.user.id, title, description, priority, dueDate });
         await task.save();
         res.status(201).json({ message: 'Task created', task });
     } catch (err) {
